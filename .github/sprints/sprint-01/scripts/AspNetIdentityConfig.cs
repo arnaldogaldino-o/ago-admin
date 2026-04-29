@@ -52,7 +52,7 @@ public static class AspNetIdentityConfig
 
     private static WebApplicationBuilder AddJwtSupport(this WebApplicationBuilder builder)
     {
-        var appSettingsSection = builder.Configuration.GetSection("AppSettings");
+        var appSettingsSection = builder.Configuration.GetSection("AppJwtSettings");
         builder.Services.Configure<AppJwtSettings>(appSettingsSection);
 
         var appSettings = appSettingsSection.Get<AppJwtSettings>();

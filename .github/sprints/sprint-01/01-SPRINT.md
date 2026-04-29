@@ -1,12 +1,9 @@
-# Sprint 1
-
+# Sprint 01
 ## Objetivo da Sprint: Implementar no projeto {nome-projeto} o ASP.NET Core Identity para gerenciar autenticação e autorização nas API do projeto {nome-projeto}
-
-# Escopo: Implementar o ASP.NET Core Identity no projeto {nome-projeto}
 
 # Tarefas:
 
-# Criar o Context
+# Passo 1 - Criar o Context
 - No projeto {nome-projeto}.Infrastructure.CrossCutting.Identity criar a classe {nome-projeto}.Infrastructure.CrossCutting.Identity.Data.{nome-projeto}IdentityContext
 - A classe deve herdar IdentityDbContext
 - O construtor da classe deve ser adequado para 
@@ -43,7 +40,7 @@ public {nome-projeto}IdentityContext(DbContextOptions<{nome-projeto}IdentityCont
     }
 ```
 
-# Criar as Classes
+# Passo 1 - Criar as Classes
 - Criar a classe {nome-projeto}.Infrastructure.CrossCutting.Identity.Extensions.ClaimsPrincipalExtensions
 - Refatorar a classe usando como exemplo o script ClaimsPrincipalExtensions.cs
 
@@ -73,7 +70,7 @@ public {nome-projeto}IdentityContext(DbContextOptions<{nome-projeto}IdentityCont
 - Criar as classe {nome-projeto}.Infrastructure.CrossCutting.Identity.Models.LoginUser, {nome-projeto}.Infrastructure.CrossCutting.Identity.Models.RegisterUser, {nome-projeto}.Infrastructure.CrossCutting.Identity.Models.UserClaim, {nome-projeto}.Infrastructure.CrossCutting.Identity.Models.UserResponse, {nome-projeto}.Infrastructure.CrossCutting.Identity.Models.UserToken
 - Refatorar a classe usando como exemplo os scripts\Models
 
-# Configura o Program.cs
+# Passo 2 - Configura o Program.cs
 - using {nome-projeto}.Api.Endpoints.ApiEndpoints
 - Implementar na classe:
 ```csharp
@@ -95,10 +92,11 @@ app.UseHttpsRedirection()
 
 app.MapIdentityApi<IdentityUser>();
 ```
-### Gerar a dotnet migration
+
+# Passo 3 - Gerar a dotnet migration
 - Gerar a migration do projeto {nome-projeto}.Infrastructure.CrossCutting.Identity com o nome initial_identity
 
-### Criar os Endpoints
+# Passo 4 -  Criar os Endpoints
 - Criar o grupo de endpoint Account no projeto {nome-projeto}.Api
 - Neste grupo implementar o método PostRegisterAsync como estático que retorna Task<IResult>
 - Ele recebe como parametro RegisterUser registerUser, UserManager<IdentityUser> userManager, AppJwtSettings appJwtSettings, CancellationToken cancellationToken
@@ -171,14 +169,21 @@ public static async Task<IResult> PostLoginAsync(
 
 - Implementa o accountGroup.MapPost("enter", PostLoginAsync).WithName(nameof(PostLoginAsync));
 
-### Configurar o AppSettings
-```
+# Passo 5 - Configurar o AppSettings.<ambientes>.json
+- Adicionar:
+```json
   "AllowedHosts": "*",
-  "AppSettings": {
+  "AppJwtSettings": {
     "SecretKey": "fmFGn5agHZkuG2N0e1zaEJIQtGVoNN5P",
     "Expiration": 2,
     "Issuer": "{nome-projeto}Dev",
     "Audience": "https://localhost"
+  },
+  "Authentication": {
+    "Google": {
+      "ClientId": "SetYourDataHere",
+      "ClientSecret": "SetYourDataHere"
+    }
   }
 ```
-## Critérios de aceite:
+
