@@ -46,17 +46,17 @@ Passos:
         - Infrastructure.CrossCutting.IoC: `dotnet new classlib -n "{nome-projeto}.Infrastructure.CrossCutting.IoC" -o "{caminho-completo}/src/{nome-projeto}.Infrastructure.CrossCutting.IoC"`
         - Infrastructure.CrossCutting.Identity: `dotnet new classlib -n "{nome-projeto}.Infrastructure.CrossCutting.Identity" -o "{caminho-completo}/src/{nome-projeto}.Infrastructure.CrossCutting.Identity"`
         - Tests: `dotnet new xunit -n "{nome-projeto}.Tests" -o "{caminho-completo}/src/{nome-projeto}.Tests"`
+    - Limpar de todos os projetos criados os arquivos de template (ex: `WeatherForecast.cs`, `Class1.cs`, `UnitTest1.cs`) usando `Remove-Item` ou equivalente.
 
 - Passo 2 - Referenciar os projetos
     - Use `dotnet add <proj> reference <outro-proj>` com caminhos relativos ou absolutos. Exemplos:
         - `dotnet add "{caminho-completo}/src/{nome-projeto}.Api/{nome-projeto}.Api.csproj" reference "{caminho-completo}/src/{nome-projeto}.Application/{nome-projeto}.Application.csproj"`
         - `dotnet add "{caminho-completo}/src/{nome-projeto}.Api/{nome-projeto}.Api.csproj" reference "{caminho-completo}/src/{nome-projeto}.Infrastructure.Data/{nome-projeto}.Infrastructure.Data.csproj"`
         - `dotnet add "{caminho-completo}/src/{nome-projeto}.Application/{nome-projeto}.Application.csproj" reference "{caminho-completo}/src/{nome-projeto}.Domain/{nome-projeto}.Domain.csproj"`
-    - Relações sugeridas:
-        - API -> Application, Infrastructure.Data, Infrastructure.CrossCutting.IoC, Infrastructure.CrossCutting.Identity
-        - Application -> Domain, Infrastructure.Data
-        - Infrastructure.Data -> Domain
-        - Infrastructure.CrossCutting.IoC -> Application, Infrastructure.Data, Domain
+    - `API` deve referenciar `Application`, `Infrastructure.CrossCutting.IoC`, `Infrastructure.CrossCutting.Identity`
+    - `Application` deve referenciar `Domain`, `Infrastructure.Data`
+    - `Infrastructure.Data` deve referenciar `Domain`
+    - `Infrastructure.CrossCutting.IoC` deve referenciar `Application`, `Infrastructure.Data`, `Domain`
 
 - Passo 3 - Adicionar pacotes NuGet (versões alinhadas)
     - Para garantir compatibilidade com `net10.0`, use explicitamente versões 10.x para pacotes do ASP.NET/EF Core quando disponíveis. Exemplo para API:
@@ -70,17 +70,21 @@ Passos:
         - `dotnet add "..." package Microsoft.AspNetCore.Authentication.JwtBearer --version 10.0.7`
         - `dotnet add "..." package Microsoft.AspNetCore.Identity.UI --version 10.0.7`
     - Em `Infrastructure.CrossCutting.IoC` e `Infrastructure.Data`, adicione `Microsoft.EntityFrameworkCore` e `Npgsql.EntityFrameworkCore.PostgreSQL` na versão 10.x. Remova duplicações e padronize versões com `dotnet list package --outdated`/`dotnet list package`.
+    - Em `API`, adicione `Microsoft.AspNetCore.OpenApi` na versão 10.0.5, `Scalar.AspNetCore` na versão 2.14.3
+    - Em `Infrastructure.CrossCutting.Identity`, adicione `Microsoft.EntityFrameworkCore.Design` na versão 10.0.7, `Npgsql.EntityFrameworkCore.PostgreSQL` na versão 10.0.1, `Microsoft.AspNetCore.Http.Abstractions` na versão 2.3.9, `Microsoft.Extensions.Configuration` na versão 10.0.7, `Microsoft.Extensions.Configuration.Json` na versão 10.0.7, `Microsoft.AspNetCore.Identity.EntityFrameworkCore` na versão 10.0.7, `System.IdentityModel.Tokens.Jwt` na versão 8.17.0, `Microsoft.AspNetCore.Authorization` na versão 8.17.0, `Microsoft.AspNetCore.Authentication.JwtBearer` na versão 10.0.7, `Microsoft.AspNetCore.Identity.UI` na versão 10.0.7, `Microsoft.AspNetCore.Authentication.JwtBearer` na versão 10.0.7, `Microsoft.AspNetCore.Authentication.Google` na versão 10.0.7
+    - Em `Infrastructure.CrossCutting.IoC`, adicione `Microsoft.Extensions.DependencyInjection` na versão 10.0.0, `Microsoft.Extensions.Configuration` na versão 10.0.7, `Microsoft.Extensions.Configuration.Json` na versão 10.0.7, `Microsoft.EntityFrameworkCore` na versão 10.0.7, `Npgsql.EntityFrameworkCore.PostgreSQL` na versão 10.0.1, `Microsoft.Extensions.Diagnostics.HealthChecks` na versão 10.0.7, `Microsoft.Extensions.DependencyInjection` na versão 10.0.7, `Microsoft.Extensions.Configuration.Abstractions` na versão 10.0.7, `AspNetCore.HealthChecks.NpgSql` na versão 9.0.0
+    - Em `Infrastructure.Data`, adicione `Microsoft.EntityFrameworkCore` na versão 10.0.7, `Npgsql.EntityFrameworkCore.PostgreSQL` na versão 10.0.1, `AspNetCore.HealthChecks.NpgSql` na versão 9.0.0
+    - Em `Tests`, adicione `Microsoft.EntityFrameworkCore.InMemory` na versão 10.0.7, `Microsoft.Extensions.Configuration` na versão 10.0.7, `Microsoft.Extensions.Configuration.Json` na versão 10.0.7, `Microsoft.Extensions.DependencyInjection` na versão 10.0.7, `Moq` na versão 4.18.4
 
 - Passo 4 - Criar a solução e adicionar os projetos
     - `dotnet new sln -n "{nome-projeto}" -o "{caminho-completo}"`
     - Adicionar projetos:
-        - `dotnet sln "{caminho-completo}/{nome-projeto}.sln" add "{caminho-completo}/src/{nome-projeto}.Api/{nome-projeto}.Api.csproj"`
+        - `dotnet sln "{caminho-completo}/{nome-projeto}.slnx" add "{caminho-completo}/src/{nome-projeto}.Api/{nome-projeto}.Api.csproj"`
         - Repita para os demais projetos (`.Application`, `.Domain`, `.Infrastructure.Data`, `.Infrastructure.CrossCutting.IoC`, `.Infrastructure.CrossCutting.Identity`, `.Tests`).
-    - Observação: criar pastas (solution folders) normalmente é feito via IDE ou editando a `.sln`; o `dotnet` CLI não expõe criação de solution folders diretamente.
+    - Observação: criar pastas (solution folders) normalmente é feito via IDE ou editando a `.slnx`; o `dotnet` CLI não expõe criação de solution folders diretamente.
 
 - Passo 5 - Limpar código do `Program.cs` e remover arquivos de template
     - Remover o endpoint de exemplo `WeatherForecast` e a classe `WeatherForecast` do projeto de API.
-    - Remover `Class1.cs` dos classlib gerados e `UnitTest1.cs` do projeto de testes.
     - Exemplos de remoção (PowerShell):
         - `Remove-Item -Path "{caminho-completo}/src/{nome-projeto}.Api/WeatherForecast.cs" -Force`
         - `Remove-Item -Path "{caminho-completo}/src/{nome-projeto}.Application/Class1.cs" -Force`
