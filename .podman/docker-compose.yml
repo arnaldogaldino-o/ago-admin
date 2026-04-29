@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    user: "999:999"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: agoadmin
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
+    driver: local
+#    driver_opts:
+#      type: none               # “none” = bind‑mount (não é um device de bloco)
+#      o: bind                  # opção de montagem
+#      device: /mnt/c/_prj/Projeto/postgres_data   # caminho absoluto no host
+      
