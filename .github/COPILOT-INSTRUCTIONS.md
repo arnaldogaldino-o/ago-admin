@@ -6,6 +6,6 @@
     string-de-conexao: Host=localhost;port=5432;Database=agoadmin;Username=postgres;Password=password;Include Error Detail=true
 - Crie todos os projetos da arquitetura limpa (Api, Application, Domain, API, Infrastructure-Data, Infrastructure-CrossCutting-IoC, Infrastructure-CrossCutting-Identity, Test) usando a skill "criar-api-aspnet" e organize-os de acordo com as melhores práticas de Clean Architecture.
 
-# Executar as tarefas de cada sprint ()
+# Executar as tarefas de cada sprint seguindo as instruções detalhadas em cada arquivo de sprint:
 - [01-SPRINT.md](./sprints/sprint-01/01-SPRINT.md)
 
