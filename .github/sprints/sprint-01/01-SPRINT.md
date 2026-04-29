@@ -10,10 +10,10 @@
         ```csharp
         public {nome-projeto}IdentityContext(DbContextOptions<{nome-projeto}IdentityContext> options) : base(options) { }
         ```
-    - dotnet add "{caminho-completo}/src/{nome-projeto}.Infrastructure.Data/{nome-projeto}.Infrastructure.CrossCutting.Identity.csproj" package Microsoft.AspNetCore.Identity.EntityFrameworkCore 10.0.7
-    - dotnet add "{caminho-completo}/src/{nome-projeto}.Infrastructure.Data/{nome-projeto}.Infrastructure.CrossCutting.Identity.csproj" package Microsoft.EntityFrameworkCore.Design 10.0.7
-    - dotnet add "{caminho-completo}/src/{nome-projeto}.Infrastructure.Data/{nome-projeto}.Infrastructure.CrossCutting.Identity.csproj" package Npgsql.EntityFrameworkCore.PostgreSQL 10.0.1
-    - dotnet add "{caminho-completo}/src/{nome-projeto}.Infrastructure.Data/{nome-projeto}.Infrastructure.CrossCutting.Identity.csproj" package Microsoft.AspNetCore.Http.Abstractions 2.3.9
+    - dotnet add "{caminho-completo}/src/{nome-projeto}.Infrastructure.CrossCutting.Identity/{nome-projeto}.Infrastructure.CrossCutting.Identity.csproj" package Microsoft.AspNetCore.Identity.EntityFrameworkCore 10.0.7
+    - dotnet add "{caminho-completo}/src/{nome-projeto}.Infrastructure.CrossCutting.Identity/{nome-projeto}.Infrastructure.CrossCutting.Identity.csproj" package Microsoft.EntityFrameworkCore.Design 10.0.7
+    - dotnet add "{caminho-completo}/src/{nome-projeto}.Infrastructure.CrossCutting.Identity/{nome-projeto}.Infrastructure.CrossCutting.Identity.csproj" package Npgsql.EntityFrameworkCore.PostgreSQL 10.0.1
+    - dotnet add "{caminho-completo}/src/{nome-projeto}.Infrastructure.CrossCutting.Identity/{nome-projeto}.Infrastructure.CrossCutting.Identity.csproj" package Microsoft.AspNetCore.Http.Abstractions <versão_compatível_com_NET>
 
     - Criar uma nova classe Data.{nome-projeto}IdentityContextFactory
     - Refatorar a classe Data.{nome-projeto}IdentityContextFactory:
@@ -33,7 +33,8 @@
                     var builder = new DbContextOptionsBuilder<{nome-projeto}IdentityContext>();
 
                     var connectionString = configuration.GetConnectionString("DefaultConnection");
-                    builder.UseNpgsql(configuration.GetConnectionString(ConnectionString));
+                    // Use a variável connectionString obtida acima
+                    builder.UseNpgsql(connectionString);
 
                     return new {nome-projeto}IdentityContext(builder.Options);
                 }
@@ -44,8 +45,8 @@
     - Criar a classe {nome-projeto}.Infrastructure.CrossCutting.Identity.Extensions.ClaimsPrincipalExtensions
     - Refatorar a classe usando como exemplo o script ClaimsPrincipalExtensions.cs
 
-    - Criar a classe interface {nome-projeto}.Infrastructure.CrossCutting.Identity.User.IAspNetUser
-    - Refatorar a classe usando como exemplo o script IAspNetUser.cs
+    - Criar a interface {nome-projeto}.Infrastructure.CrossCutting.Identity.User.IAspNetUser
+    - Refatorar a interface usando como exemplo o script IAspNetUser.cs
 
     - Criar a classe {nome-projeto}.Infrastructure.CrossCutting.Identity.User.AspNetUser
     - Refatorar a classe usando como exemplo o script AspNetUser.cs
@@ -127,8 +128,8 @@
 
     - Criar o método GetFullJwt recebe como paramentro string email, UserManager<IdentityUser> userManager, AppJwtSettings appJwtSettings
         ```csharp
-                private string GetFullJwt(string email
-                    UserManager<IdentityUser> userManager, AppJwtSettings appJwtSettings)
+                // Tornar estático para uso em métodos estáticos e corrigir sintaxe
+                private static string GetFullJwt(string email, UserManager<IdentityUser> userManager, AppJwtSettings appJwtSettings)
                 {
                     return new JwtBuilder()
                         .WithUserManager(userManager)
@@ -145,17 +146,19 @@
     - Cria o método PostLoginAsync
         ```csharp
         public static async Task<IResult> PostLoginAsync(
-                    LoginUser loginUser,
-                    UserManager<IdentityUser> userManager,
-                    AppJwtSettings appJwtSettings,
-                    CancellationToken cancellationToken)
+                LoginUser loginUser,
+                UserManager<IdentityUser> userManager,
+                SignInManager<IdentityUser> signInManager,
+                AppJwtSettings appJwtSettings,
+                CancellationToken cancellationToken)
             {
-                var result = await signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, true);
+            var result = await signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, true);
 
                 if (result.Succeeded)
                 {
                     var fullJwt = GetFullJwt(loginUser.Email, userManager, appJwtSettings);
-                    return CustomResponse(fullJwt);
+                    // Usar Results.Ok para resposta simples; ajustar para CustomResponse se existir helper
+                    return Results.Ok(fullJwt);
                 }
 
                 if (result.IsLockedOut)
